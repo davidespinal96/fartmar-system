@@ -82,6 +82,9 @@ class PharmacyRulesTest extends TestCase
         $line = $prescription->items()->firstOrFail();
         $warehouse = Warehouse::where('code', 'BOD-CALI')->firstOrFail();
         $inventory = Inventory::with('lot')->where('warehouse_id', $warehouse->id)->whereHas('lot', fn ($q) => $q->where('lot_number', 'LOT-ACE-001'))->firstOrFail();
+        Inventory::where('warehouse_id', $warehouse->id)
+            ->whereHas('lot', fn ($query) => $query->where('medication_id', $inventory->lot->medication_id))
+            ->update(['quantity' => 0]);
         $inventory->update(['quantity' => 1]);
         $user = User::where('email', 'auxiliar@fartmar.test')->firstOrFail();
         $service = app(DispensationService::class);
@@ -106,6 +109,9 @@ class PharmacyRulesTest extends TestCase
         $line = $prescription->items()->firstOrFail();
         $warehouse = Warehouse::where('code', 'BOD-CALI')->firstOrFail();
         $inventory = Inventory::with('lot')->where('warehouse_id', $warehouse->id)->whereHas('lot', fn ($q) => $q->where('lot_number', 'LOT-ACE-001'))->firstOrFail();
+        Inventory::where('warehouse_id', $warehouse->id)
+            ->whereHas('lot', fn ($query) => $query->where('medication_id', $inventory->lot->medication_id))
+            ->update(['quantity' => 0]);
         $inventory->update(['quantity' => 1]);
         $user = User::where('email', 'auxiliar@fartmar.test')->firstOrFail();
         $payload = [

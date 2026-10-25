@@ -300,7 +300,12 @@ class DispensationService
                         'balance_after' => $after,
                         'reference_type' => 'DISPENSATION',
                         'reference_id' => $dispensation->id,
-                        'idempotency_key' => $data['idempotency_key'],
+                        'idempotency_key' => sprintf(
+                            'disp:%d:item:%d:inv:%d',
+                            $dispensation->id,
+                            $prescriptionItem->id,
+                            $inventory->id
+                        ),
                         'observations' => 'Dispensación de fórmula médica.',
                         'occurred_at' => now(),
                     ]);
