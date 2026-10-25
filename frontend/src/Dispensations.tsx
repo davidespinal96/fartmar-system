@@ -172,6 +172,10 @@ export default function Dispensations({ userRole }: { userRole?: string }) {
   }
 
   const selectedLine = selectedPrescription?.items.find(item => String(item.id) === prescriptionItemId);
+  const selectablePrescriptions = prescriptions.filter(
+    prescription => prescription.status === "ACTIVA"
+      && prescription.items.some(item => item.remaining_quantity > 0),
+  );
   const fefoLots = inventory
     .filter(item => String(item.warehouse?.id) === warehouseId && item.lot?.medication?.id === selectedLine?.medication_id && item.quantity > 0 && (item.lot?.expiration_date ?? "") >= new Date().toISOString().slice(0, 10))
     .sort((a, b) => a.lot!.expiration_date.localeCompare(b.lot!.expiration_date));
@@ -304,9 +308,11 @@ export default function Dispensations({ userRole }: { userRole?: string }) {
 
           <label>Fórmula médica
             <select required disabled={!selectedPatient || loading} value={prescriptionId} onChange={event => {
-              const rx = prescriptions.find(item => String(item.id) === event.target.value) ?? null;
+              const rx = selectablePrescriptions.find(item => String(item.id) === event.target.value) ?? null;
               setPrescriptionId(event.target.value); setSelectedPrescription(rx); setPrescriptionItemId("");
-            }}><option value="">Selecciona fórmula</option>{prescriptions.filter(rx => rx.status === "ACTIVA").map(rx => <option value={rx.id} key={rx.id}>{rx.prescription_number} · vigente hasta {rx.valid_until ?? "sin fecha"}</option>)}</select>
+            }}><option value="">{selectedPatient ? "Selecciona fórmula" : "Primero selecciona un paciente"}</option>{selectablePrescriptions.map(rx => <option value={rx.id} key={rx.id}>{rx.prescription_number} · vigente hasta {rx.valid_until ?? "sin fecha"}</option>)}</select>
+            {selectedPatient && prescriptions.length === 0 && <small>Este paciente no tiene fórmulas registradas.</small>}
+            {selectedPatient && prescriptions.length > 0 && selectablePrescriptions.length === 0 && <small>Sus fórmulas no tienen medicamentos pendientes para dispensar.</small>}
           </label>
 
           <label>
@@ -332,7 +338,7 @@ export default function Dispensations({ userRole }: { userRole?: string }) {
           </label>
 
           <label>Medicamento prescrito
-            <select required disabled={!selectedPrescription || loading} value={prescriptionItemId} onChange={event => { setPrescriptionItemId(event.target.value); setAuthorizationId(""); }}><option value="">Selecciona medicamento</option>{selectedPrescription?.items.filter(item => item.remaining_quantity > 0).map(item => <option value={item.id} key={item.id}>{item.medication_name} · pendientes {item.remaining_quantity}{item.is_controlled ? " · control especial" : ""}</option>)}</select>
+            <select required disabled={!selectedPrescription || loading} value={prescriptionItemId} onChange={event => { setPrescriptionItemId(event.target.value); setAuthorizationId(""); }}><option value="">{selectedPrescription ? "Selecciona medicamento" : "Primero selecciona una fórmula"}</option>{selectedPrescription?.items.filter(item => item.remaining_quantity > 0).map(item => <option value={item.id} key={item.id}>{item.medication_name} · pendientes {item.remaining_quantity}{item.is_controlled ? " · control especial" : ""}</option>)}</select>
           </label>
 
           <label>
