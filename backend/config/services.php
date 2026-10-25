@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'inventory_assistant' => [
+        'provider' => env('INVENTORY_ASSISTANT_PROVIDER', 'mock'),
+        'api_key' => env('INVENTORY_ASSISTANT_API_KEY'),
+        'model' => env('INVENTORY_ASSISTANT_MODEL', 'gpt-4o-mini'),
+        'base_url' => env('INVENTORY_ASSISTANT_BASE_URL', 'https://api.openai.com/v1'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

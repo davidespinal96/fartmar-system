@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: FARTMAR Pharmacy API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8001/api
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      security: []
+      responses:
+        '200': { description: API activa }
+  /inventory:
+    get:
+      summary: Consulta inventario con filtros y alertas
+      parameters:
+        - { in: query, name: warehouse_id, schema: { type: integer } }
+        - { in: query, name: medication_id, schema: { type: integer } }
+        - { in: query, name: status, schema: { type: string, enum: [all, available, low_stock, expired, expiring] } }
+      responses:
+        '200': { description: Página de existencias }
+  /inventory/{inventoryId}/adjustments:
+    post:
+      summary: Regente ajusta una existencia y registra un movimiento inmutable
+      parameters:
+        - { in: path, name: inventoryId, required: true, schema: { type: integer } }
+      responses:
+        '201': { description: Ajuste aplicado }
+  /movements:
+    get:
+      summary: Consulta kardex con filtros
+      parameters:
+        - { in: query, name: warehouse_id, schema: { type: integer } }
+        - { in: query, name: medication_id, schema: { type: integer } }
+        - { in: query, name: lot_id, schema: { type: integer } }
+        - { in: query, name: type, schema: { type: string } }
+        - { in: query, name: from, schema: { type: string, format: date } }
+        - { in: query, name: to, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Página de movimientos }
+  /patients:
+    get:
+      summary: Busca pacientes; registra cada acceso y enmascara la respuesta del auditor
+      parameters:
+        - { in: query, name: search, required: true, schema: { type: string, minLength: 2, maxLength: 100 } }
+      responses:
+        '200': { description: Resultados de búsqueda minimizados según el rol }
+  /patients/{patientId}/prescriptions:
+    get:
+      summary: Consulta fórmulas activas y cantidades pendientes; genera evento de auditoría
+      parameters:
+        - { in: path, name: patientId, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Fórmulas y líneas prescritas }
+  /prescriptions:
+    post:
+      summary: Médico crea una prescripción para un paciente activo
+      responses:
+        '201': { description: Fórmula creada con sus líneas }
+  /audit/patient-access:
+    get:
+      summary: Consulta eventos de acceso a pacientes
+      parameters:
+        - { in: query, name: from, schema: { type: string, format: date } }
+        - { in: query, name: to, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Accesos con usuario, paciente pseudonimizado y acción }
+  /dispensations:
+    post:
+      summary: Dispensa artículos de una prescripción (idempotente)
+      responses:
+        '201': { description: Dispensación creada }
+        '409': { description: Clave idempotente reutilizada con distinto contenido }
+  /transfers:
+    get: { summary: Historial paginado, responses: { '200': { description: Transferencias } } }
+    post: { summary: Solicita traslado idempotente, responses: { '201': { description: Solicitud creada } } }
+  /inventory-assistant:
+    post:
+      summary: Consulta de inventario con intents permitidos y solo lectura
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties: { question: { type: string, maxLength: 500 } }
+      responses:
+        '200': { description: Respuesta acotada al inventario }
+  /controlled-authorizations:
+    post:
+      summary: El regente autoriza una cantidad exacta para una línea y bodega
+      responses:
+        '201': { description: Autorización de un solo uso creada }
+        '409': { description: Clave reutilizada con datos diferentes }
+  /transfers/{id}/receive:
+    post:
+      summary: Registra cantidades recibidas; conserva discrepancias para recepciones posteriores
+      responses:
+        '200': { description: Traslado recibido total o parcialmente }
+  /transfers/{id}/submit:
+    post:
+      summary: Quien creó un borrador lo envía para aprobación
+      responses:
+        '200': { description: Solicitud enviada }
+  /transfers/{id}/cancel:
+    post:
+      summary: Anula una solicitud antes del despacho
+      responses:
+        '200': { description: Traslado anulado }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
