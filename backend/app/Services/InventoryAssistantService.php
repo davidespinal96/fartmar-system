@@ -7,6 +7,7 @@ use App\Models\Inventory;
 use App\Models\Medication;
 use App\Models\Warehouse;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -61,14 +62,19 @@ class InventoryAssistantService
             $query->where('quantity', '>', 0);
         }
         DB::table('assistant_audits')->insert(['user_id' => $userId, 'intent' => $intent['intent'], 'created_at' => now(), 'updated_at' => now()]);
-        $rows = $query->limit(100)->get()->map(fn ($item) => [
-            'warehouse' => $item->warehouse?->name,
-            'medication' => $item->lot?->medication?->name,
-            'lot' => $item->lot?->lot_number,
-            'expiration_date' => $item->lot?->expiration_date?->toDateString(),
-            'quantity' => $item->quantity,
-            'minimum_stock' => $item->minimum_stock,
-        ])->all();
+        $rows = $query->limit(100)->get()->map(function (Inventory $item): array {
+            /** @var Carbon|null $expirationDate */
+            $expirationDate = $item->lot?->expiration_date;
+
+            return [
+                'warehouse' => $item->warehouse?->name,
+                'medication' => $item->lot?->medication?->name,
+                'lot' => $item->lot?->lot_number,
+                'expiration_date' => $expirationDate?->toDateString(),
+                'quantity' => $item->quantity,
+                'minimum_stock' => $item->minimum_stock,
+            ];
+        })->all();
 
         return ['answer' => count($rows) ? 'Encontré '.count($rows).' existencias que coinciden con la consulta.' : 'No encontré existencias que coincidan con la consulta.', 'results' => $rows];
     }
