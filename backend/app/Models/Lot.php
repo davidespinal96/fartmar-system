@@ -28,6 +28,7 @@ class Lot extends Model
         ];
     }
 
+    /** @return BelongsTo<Medication, $this> */
     public function medication(): BelongsTo
     {
         return $this->belongsTo(Medication::class);

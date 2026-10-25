@@ -26,16 +26,19 @@ class Inventory extends Model
         ];
     }
 
+    /** @return BelongsTo<Warehouse, $this> */
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
     }
 
+    /** @return BelongsTo<Lot, $this> */
     public function lot(): BelongsTo
     {
         return $this->belongsTo(Lot::class);
     }
 
+    /** @return HasMany<InventoryMovement, $this> */
     public function movements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);

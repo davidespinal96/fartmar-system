@@ -6,6 +6,7 @@ use App\Contracts\InventoryAssistantProvider;
 use App\Models\Inventory;
 use App\Models\Medication;
 use App\Models\Warehouse;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -20,6 +21,7 @@ class InventoryAssistantService
             return ['answer' => 'Puedo consultar existencias, stock bajo y lotes próximos a vencer. Reformula la pregunta dentro de ese alcance.', 'results' => []];
         }
 
+        /** @var Builder<Inventory> $query */
         $query = Inventory::query()->with(['warehouse:id,name', 'lot:id,medication_id,lot_number,expiration_date', 'lot.medication:id,name']);
         $days = (int) ($intent['days'] ?? 90);
         $normalizedQuestion = mb_strtolower(Str::ascii($question));

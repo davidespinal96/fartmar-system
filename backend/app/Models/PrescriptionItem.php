@@ -6,10 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @property-read Prescription $prescription
- * @property-read Medication $medication
- */
 class PrescriptionItem extends Model
 {
     use HasFactory;
@@ -33,11 +29,13 @@ class PrescriptionItem extends Model
         ];
     }
 
+    /** @return BelongsTo<Prescription, $this> */
     public function prescription(): BelongsTo
     {
         return $this->belongsTo(Prescription::class);
     }
 
+    /** @return BelongsTo<Medication, $this> */
     public function medication(): BelongsTo
     {
         return $this->belongsTo(Medication::class);

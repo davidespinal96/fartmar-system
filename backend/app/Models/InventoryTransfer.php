@@ -34,31 +34,37 @@ class InventoryTransfer extends Model
         ];
     }
 
+    /** @return BelongsTo<Warehouse, $this> */
     public function sourceWarehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'source_warehouse_id');
     }
 
+    /** @return BelongsTo<Warehouse, $this> */
     public function destinationWarehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'destination_warehouse_id');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function requester(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function canceller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cancelled_by');
     }
 
+    /** @return HasMany<InventoryTransferItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(InventoryTransferItem::class);

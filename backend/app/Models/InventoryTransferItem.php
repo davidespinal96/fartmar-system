@@ -23,6 +23,7 @@ class InventoryTransferItem extends Model
         ];
     }
 
+    /** @return BelongsTo<InventoryTransfer, $this> */
     public function transfer(): BelongsTo
     {
         return $this->belongsTo(
@@ -31,6 +32,7 @@ class InventoryTransferItem extends Model
         );
     }
 
+    /** @return BelongsTo<Inventory, $this> */
     public function inventory(): BelongsTo
     {
         return $this->belongsTo(Inventory::class);
