@@ -1,13 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom/vitest";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Assistant from "../src/Assistant";
 import api from "../src/services/api";
 
 vi.mock("../src/services/api", () => ({ default: { post: vi.fn() } }));
 
 describe("Inventory assistant", () => {
+  afterEach(() => cleanup());
   beforeEach(() => vi.clearAllMocks());
 
   it("shows only the inventory rows returned by the bounded API", async () => {
