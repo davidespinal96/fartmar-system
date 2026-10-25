@@ -20,6 +20,7 @@ class ControlledMedicationAuthorizationController extends Controller
             'authorization_key' => ['required', 'string', 'max:100'],
             'reason' => ['required', 'string', 'max:500'],
         ]);
+        /** @var PrescriptionItem $item */
         $item = PrescriptionItem::with(['prescription', 'medication'])->findOrFail($data['prescription_item_id']);
         if (! $item->medication->is_controlled || $item->prescription->status !== 'ACTIVA'
             || ($item->prescription->valid_until !== null && today()->gt($item->prescription->valid_until))
